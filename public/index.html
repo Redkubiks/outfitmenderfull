@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OutfitMender</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 id="title">OutfitMender</h1>
+      <select id="language-select">
+        <option value="pl">Polski</option>
+        <option value="en">English</option>
+      </select>
+    </header>
+
+    <main>
+      <form id="outfit-form">
+        <label for="clothes-input" id="label-clothes">Wpisz nazwy ubrań, oddzielone przecinkami:</label><br />
+        <input type="text" id="clothes-input" name="clothes" placeholder="np. koszula, jeansy, marynarka" required /><br />
+
+        <label for="occasion-select" id="label-occasion">Wybierz okazję:</label><br />
+        <select id="occasion-select" name="occasion" required>
+          <option value="casual">Codzienna / Casual</option>
+          <option value="formal">Formalna / Formal</option>
+          <option value="sport">Sportowa / Sport</option>
+          <option value="party">Impreza / Party</option>
+        </select><br />
+
+        <label for="style-select" id="label-style">Wybierz styl:</label><br />
+        <select id="style-select" name="style" required>
+          <option value="classic">Klasyczny / Classic</option>
+          <option value="modern">Nowoczesny / Modern</option>
+          <option value="vintage">Vintage</option>
+          <option value="street">Streetwear</option>
+        </select><br />
+
+        <button type="submit" id="pay-button">Kup i wygeneruj outfit</button>
+      </form>
+
+      <div id="result" style="margin-top: 20px;"></div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
