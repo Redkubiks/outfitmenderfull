@@ -1,9 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-app.use(cors({
-  origin: "https://outfitmenderfull.vercel.app"
-}));
+// Konfiguracja CORS
+const corsOptions = {
+  origin: 'https://outfitmenderfull.vercel.app'
+};
+app.use(cors(corsOptions));
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // klucz ukryty w Railway
 const cors = require("cors");
 
