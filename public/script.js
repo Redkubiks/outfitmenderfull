@@ -16,7 +16,7 @@ form.addEventListener("submit", async (e) => {
 
   // Wywołaj backend, by utworzyć sesję Stripe
   try {
-    const sessionRes = await fetch("https://outfitmenderfull.up.railway.app/create-checkout-session", {
+    const sessionRes = await fetch('https://outfitmenderfull.up.railway.app/create-checkout-session', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
