@@ -1,57 +1,39 @@
-// script.js
-
-// Wstaw swój klucz publiczny Stripe tutaj:
-const stripe = Stripe("TU_WSTAW_TWÓJ_STRIPE_PUBLISHABLE_KEY");
-
 const form = document.getElementById("outfit-form");
+const input = document.getElementById("clothes-input");
 const result = document.getElementById("result");
-const languageSelect = document.getElementById("language-select");
-
-let currentLang = "pl";
-
-const translations = {
-  pl: {
-    clothes: "Wpisz nazwy ubrań, oddzielone przecinkami:",
-    occasion: "Wybierz okazję:",
-    style: "Wybierz styl:",
-    button: "Kup i wygeneruj outfit",
-  },
-  en: {
-    clothes: "Enter clothing names, separated by commas:",
-    occasion: "Select occasion:",
-    style: "Select style:",
-    button: "Buy and generate outfit",
-  },
-};
-
-languageSelect.addEventListener("change", () => {
-  currentLang = languageSelect.value;
-  updateLanguage();
-});
-
-function updateLanguage() {
-  const t = translations[currentLang];
-  document.getElementById("label-clothes").innerText = t.clothes;
-  document.getElementById("label-occasion").innerText = t.occasion;
-  document.getElementById("label-style").innerText = t.style;
-  document.getElementById("pay-button").innerText = t.button;
-}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  result.innerText = "";
+  const inputValue = input.value.trim();
 
- try {
-  const sessionRes = await fetch("https://outfitmenderfull.up.railway.app/create-checkout-session", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ formData }),
-  });
-  
-  const session = await sessionRes.json();
-  window.location.href = session.url; // przekierowanie na Stripe Checkout
-} catch (error) {
-  console.error("Błąd podczas tworzenia sesji:", error);
-}
+  if (!inputValue) {
+    alert("Proszę wpisać nazwy ubrań");
+    return;
+  }
+
+  // Podziel input na tablicę ubrań (oddzielonych przecinkami)
+  const formData = inputValue.split(",").map(item => item.trim());
+
+  // Wywołaj backend, by utworzyć sesję Stripe
+  try {
+    const sessionRes = await fetch("https://outfitmenderfull.up.railway.app/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ formData }),
+    });
+
+    const session = await sessionRes.json();
+
+    if (session.url) {
+      // Przekieruj do Stripe Checkout
+      window.location.href = session.url;
+    } else {
+      alert("Coś poszło nie tak przy tworzeniu sesji płatności.");
+    }
+  } catch (error) {
+    console.error("Błąd podczas tworzenia sesji:", error);
+    alert("Wystąpił błąd. Spróbuj ponownie później.");
+  }
+});
