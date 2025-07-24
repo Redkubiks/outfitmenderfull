@@ -1,38 +1,39 @@
-// server.js
-const express = require('express');
+const express = require("express");
 const app = express();
-const stripe = require('stripe')('pk_live_51RoSdjANS8lXxUzprO906uESZWdKjxujKIHE7yr4u8K23MJKvmn4RgArM0jJZjmwQqDC46i32ZlOjFqNM9Qcr5jZ00uKN7ZdcR"'); // <- tu wpisz swój klucz secret
-const cors = require('cors');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // klucz ukryty w Railway
+const cors = require("cors");
 
-app.use(express.static('public'));
-app.use(express.json());
 app.use(cors());
+app.use(express.static("public"));
+app.use(express.json());
 
-app.post('/create-checkout-session', async (req, res) => {
-  try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{
+const YOUR_DOMAIN = "https://outfitmenderfull.vercel.app"; // twój frontend
+
+app.post("/create-checkout-session", async (req, res) => {
+  const { formData } = req.body;
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    mode: "payment",
+    line_items: [
+      {
         price_data: {
-          currency: 'pln',
+          currency: "pln",
           product_data: {
-            name: 'OutfitMender - wygenerowanie stylowego outfitu',
-            description: 'Usługa AI generująca outfit na podstawie ubrań',
+            name: "Wygeneruj stylizację AI",
+            description: `Ubrania: ${formData.join(", ")}`,
           },
-          unit_amount: 500,
+          unit_amount: 500, // 5.00 PLN
         },
         quantity: 1,
-      }],
-      mode: 'payment',
-	      success_url: `${https://outfitmenderfull.vercel.app/}/success.html`,
-	      cancel_url: `${https://outfitmenderfull.vercel.app/}/cancel.html`,
-    });
-    res.json({ id: session.id });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+      },
+    ],
+    success_url: `${YOUR_DOMAIN}/success.html`,
+    cancel_url: `${YOUR_DOMAIN}/cancel.html`,
+  });
+
+  res.json({ id: session.id });
 });
 
-app.listen(3000, () => {
-  console.log('Serwer działa na https://outfitmenderfull.vercel.app');
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`✅ Server działa na porcie ${PORT}`));
