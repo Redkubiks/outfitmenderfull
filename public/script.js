@@ -41,5 +41,17 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
   result.innerText = "";
 
-  try {
-    const sessionRes = await fetch("/create-c
+ try {
+  const sessionRes = await fetch("https://outfitmenderfull.up.railway.app/create-checkout-session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ formData }),
+  });
+  
+  const session = await sessionRes.json();
+  window.location.href = session.url; // przekierowanie na Stripe Checkout
+} catch (error) {
+  console.error("Błąd podczas tworzenia sesji:", error);
+}
