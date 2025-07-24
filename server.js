@@ -1,7 +1,7 @@
 // server.js
 const express = require('express');
 const app = express();
-const stripe = require('stripe')('TU_WSTAW_TWÓJ_SECRET_KEY'); // <- tu wpisz swój klucz secret
+const stripe = require('stripe')('pk_live_51RoSdjANS8lXxUzprO906uESZWdKjxujKIHE7yr4u8K23MJKvmn4RgArM0jJZjmwQqDC46i32ZlOjFqNM9Qcr5jZ00uKN7ZdcR"'); // <- tu wpisz swój klucz secret
 const cors = require('cors');
 
 app.use(express.static('public'));
@@ -24,8 +24,8 @@ app.post('/create-checkout-session', async (req, res) => {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: 'http://localhost:3000/success.html',
-      cancel_url: 'http://localhost:3000/cancel.html',
+	      success_url: `${https://outfitmenderfull.vercel.app/}/success.html`,
+	      cancel_url: `${https://outfitmenderfull.vercel.app/}/cancel.html`,
     });
     res.json({ id: session.id });
   } catch (error) {
@@ -34,5 +34,5 @@ app.post('/create-checkout-session', async (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('Serwer działa na http://localhost:3000');
+  console.log('Serwer działa na https://outfitmenderfull.vercel.app');
 });
