@@ -5,20 +5,20 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// POZWALAMY NA DOSTĘP FRONTENDOWI Z VERCELA
+// 🔓 POZWALAMY NA POŁĄCZENIA Z FRONTU NA VERCEL
 app.use(cors({
   origin: "https://outfitmenderfull.vercel.app"
 }));
-app.options('*', cors()); // ← To dodaje obsługę preflight
+app.options("*", cors()); // ← to obsługuje preflight dla POST
 
 app.use(express.json());
 
-// Główna trasa
+// 🧪 Prosty test GET
 app.get("/", (req, res) => {
-  res.send("Outfit Mender backend działa! 🚀");
+  res.send("✅ Outfit Mender backend działa!");
 });
 
-// Endpoint tworzący sesję Stripe
+// 💳 Stripe: utworzenie sesji płatności
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
@@ -29,9 +29,9 @@ app.post("/create-checkout-session", async (req, res) => {
             currency: "usd",
             product_data: {
               name: "Wygeneruj outfit AI",
-              description: "Usługa automatycznego tworzenia outfitu na podstawie wskazanych elementów",
+              description: "Stylizacja AI na podstawie wybranych ubrań",
             },
-            unit_amount: 500, // czyli $5.00
+            unit_amount: 500, // $5.00
           },
           quantity: 1,
         },
@@ -43,12 +43,12 @@ app.post("/create-checkout-session", async (req, res) => {
 
     res.json({ url: session.url });
   } catch (error) {
-    console.error("Błąd tworzenia sesji:", error);
+    console.error("❌ Błąd tworzenia sesji:", error);
     res.status(500).json({ error: "Wystąpił problem przy tworzeniu sesji Stripe" });
   }
 });
 
-// Start serwera
+// ▶️ Uruchom serwer
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`🚀 Server działa na porcie ${PORT}`);
 });
