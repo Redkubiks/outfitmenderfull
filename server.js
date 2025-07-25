@@ -1,45 +1,53 @@
-const express = require('express');
-const cors = require('cors');
-const app = express();
-// Konfiguracja CORS
-const corsOptions = {
-  origin: 'https://outfitmenderfull.vercel.app'
-};
-app.use(cors(corsOptions));
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // klucz ukryty w Railway
+const express = require("express");
 const cors = require("cors");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-app.use(cors());
-app.use(express.static("public"));
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// POZWALAMY NA DOSTĘP FRONTENDOWI Z VERCELA
+app.use(cors({
+  origin: "https://outfitmenderfull.vercel.app"
+}));
+
 app.use(express.json());
 
-const YOUR_DOMAIN = "https://outfitmenderfull.vercel.app"; // twój frontend
-
-app.post("/create-checkout-session", async (req, res) => {
-  const { formData } = req.body;
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    mode: "payment",
-    line_items: [
-      {
-        price_data: {
-          currency: "pln",
-          product_data: {
-            name: "Wygeneruj stylizację AI",
-            description: `Ubrania: ${formData.join(", ")}`,
-          },
-          unit_amount: 500, // 5.00 PLN
-        },
-        quantity: 1,
-      },
-    ],
-    success_url: `${YOUR_DOMAIN}/success.html`,
-    cancel_url: `${YOUR_DOMAIN}/cancel.html`,
-  });
-
-  res.json({ id: session.id });
+// Główna trasa
+app.get("/", (req, res) => {
+  res.send("Outfit Mender backend działa! 🚀");
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server działa na porcie ${PORT}`));
+// Endpoint tworzący sesję Stripe
+app.post("/create-checkout-session", async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: "Wygeneruj outfit AI",
+              description: "Usługa automatycznego tworzenia outfitu na podstawie wskazanych elementów",
+            },
+            unit_amount: 500, // czyli $5.00
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: "https://outfitmenderfull.vercel.app/success.html",
+      cancel_url: "https://outfitmenderfull.vercel.app/cancel.html",
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error("Błąd tworzenia sesji:", error);
+    res.status(500).json({ error: "Wystąpił problem przy tworzeniu sesji Stripe" });
+  }
+});
+
+// Start serwera
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
