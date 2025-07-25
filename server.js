@@ -1,24 +1,28 @@
 const express = require("express");
-const cors = require("cors");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🔓 POZWALAMY NA POŁĄCZENIA Z FRONTU NA VERCEL
-app.use(cors({
-  origin: "https://outfitmenderfull.vercel.app"
-}));
-app.options("*", cors()); // ← to obsługuje preflight dla POST
+// 🔐 RĘCZNA OBSŁUGA CORS — DZIAŁA Z RAILWAY
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://outfitmenderfull.vercel.app");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json());
 
-// 🧪 Prosty test GET
+// 🧪 Testowa trasa
 app.get("/", (req, res) => {
-  res.send("✅ Outfit Mender backend działa!");
+  res.send("✅ Backend OutfitMender działa!");
 });
 
-// 💳 Stripe: utworzenie sesji płatności
+// 💳 Tworzenie sesji płatności Stripe
 app.post("/create-checkout-session", async (req, res) => {
   try {
     const session = await stripe.checkout.sessions.create({
@@ -29,9 +33,9 @@ app.post("/create-checkout-session", async (req, res) => {
             currency: "usd",
             product_data: {
               name: "Wygeneruj outfit AI",
-              description: "Stylizacja AI na podstawie wybranych ubrań",
+              description: "Stylizacja na podstawie ubrań podanych przez użytkownika",
             },
-            unit_amount: 500, // $5.00
+            unit_amount: 500, // 5.00 USD
           },
           quantity: 1,
         },
@@ -43,12 +47,12 @@ app.post("/create-checkout-session", async (req, res) => {
 
     res.json({ url: session.url });
   } catch (error) {
-    console.error("❌ Błąd tworzenia sesji:", error);
-    res.status(500).json({ error: "Wystąpił problem przy tworzeniu sesji Stripe" });
+    console.error("❌ Błąd Stripe:", error.message);
+    res.status(500).json({ error: "Nie udało się utworzyć sesji płatności" });
   }
 });
 
-// ▶️ Uruchom serwer
+// ▶️ Uruchomienie serwera
 app.listen(PORT, () => {
-  console.log(`🚀 Server działa na porcie ${PORT}`);
+  console.log(`🚀 Serwer działa na porcie ${PORT}`);
 });
