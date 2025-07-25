@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: "https://outfitmenderfull.vercel.app"
 }));
+app.options('*', cors()); // ← To dodaje obsługę preflight
 
 app.use(express.json());
 
